@@ -64,8 +64,6 @@ void loop()
       digitalWrite(LED, 0);
     }
 
-    nrf_soft_reset();
-
   }
 
   if (get_glitcher())
