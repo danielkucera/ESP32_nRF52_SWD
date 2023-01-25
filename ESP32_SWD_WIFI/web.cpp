@@ -6,14 +6,11 @@
 #include "web.h"
 #include <FS.h>
 #include "SPIFFS.h"
-#include <ESPmDNS.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFSEditor.h>
 #include <LoopbackStream.h>
-
-#include <WiFiManager.h> // https://github.com/tzapu/WiFiManager/tree/feature_asyncwebserver
 
 #include "nrf_swd.h"
 #include "glitcher.h"
@@ -21,7 +18,7 @@
 
 const char *http_username = "admin";
 const char *http_password = "admin";
-AsyncWebServer server(80);
+AsyncWebServer server(8080);
 
 unsigned long hstol(String recv)
 {
@@ -68,29 +65,7 @@ int decode_line(byte* buf, String line){
 
 void init_web()
 {
-  WiFi.mode(WIFI_STA);
-  WiFiManager wm;
-  bool res;
-  res = wm.autoConnect("AutoConnectAP");
-  if (!res)
-  {
-    Serial.println("Failed to connect");
-    ESP.restart();
-  }
-  Serial.print("Connected! IP address: ");
-  Serial.println(WiFi.localIP());
 
-  // Make accessible via http://swd.local using mDNS responder
-  if (!MDNS.begin("swd"))
-  {
-    while (1)
-    {
-      Serial.println("Error setting up mDNS responder!");
-      delay(1000);
-    }
-  }
-  Serial.println("mDNS responder started");
-  MDNS.addService("http", "tcp", 80);
   SPIFFS.begin(true);
 
   server.addHandler(new SPIFFSEditor(SPIFFS, http_username, http_password));
